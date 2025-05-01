@@ -1,18 +1,19 @@
-// ==UserScript==
-// @name         Edia Anti-Cheat Effect Remover with Toggle
-// @namespace    http://tampermonkey.net/
-// @version      1.2
-// @description  Remove anti-cheating effect on Edia with GUI toggle
-// @match        https://edia.app/*
-// @grant        GM_addStyle
-// ==/UserScript==
-
 (function() {
     'use strict';
 
+    // --- Key Validation ---
+    const key = new URLSearchParams(window.location.search).get('k');
+    const VALID_KEY = '123456'; // Change this to your secret key
+
+    if (key !== VALID_KEY) {
+        alert('Unauthorized. This script requires a valid key.');
+        throw new Error('Access denied due to invalid key.');
+    }
+
+    // --- Script Functionality Below ---
+
     let removerEnabled = false;
 
-    // Function to remove the anti-cheating effect
     function removeEffect() {
         if (!removerEnabled) return;
         const targets = document.querySelectorAll('[class*="question"]');
@@ -28,7 +29,6 @@
         });
     }
 
-    // Create and style the GUI
     const toggleBtn = document.createElement('div');
     toggleBtn.innerHTML = 'Anti-Cheat: OFF';
     toggleBtn.style.position = 'fixed';
@@ -48,13 +48,10 @@
     toggleBtn.addEventListener('click', () => {
         removerEnabled = !removerEnabled;
         toggleBtn.innerHTML = `Anti-Cheat: ${removerEnabled ? 'ON' : 'OFF'}`;
-        if (removerEnabled) removeEffect(); // Run once when turned on
+        if (removerEnabled) removeEffect();
     });
 
-    // Observe for changes in case element appears later
     const observer = new MutationObserver(removeEffect);
     observer.observe(document.body, { childList: true, subtree: true });
-
-    // Optional: run once after a short delay (in case already loaded)
     setTimeout(removeEffect, 2000);
 })();
